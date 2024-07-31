@@ -15,9 +15,9 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const mongoURI = 'mongodb://localhost:27017/chat-app';
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI)
     .then(() => console.log('MongoDB conectado'))
-    .catch(err => console.log(error));
+    .catch(error => console.log('Erro na conexão com MongoDB', error));
 
 require('./config/passportConfig')(passport);
 

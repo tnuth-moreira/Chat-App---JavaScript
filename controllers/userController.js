@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
     }
     user = new User ({ username, password });
 
-    const salt = await brcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
@@ -28,6 +28,11 @@ exports.login = async (req, res) => {
     let user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: 'Usuário não encontrado' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Senha inválida' });
     }
 
     res.status(200).json({ message: 'Login bem-sucedido' });
