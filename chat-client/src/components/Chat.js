@@ -1,47 +1,52 @@
-// src/components/Chat.js
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import './Chat.css';
 
-const socket = io('http://localhost:3000'); // Ajuste a URL se necessário
+const socket = io('http://localhost:3000'); 
 
-const Chat = () => {
+function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    socket.on('message', (message) => {
+    socket.on('chat message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
     return () => {
-      socket.off('message');
+      socket.off('chat message');
     };
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    socket.emit('message', input);
-    setInput('');
+  const handleSend = () => {
+    if (input.trim()) {
+      const message = { text: input, sender: 'user' };
+      socket.emit('chat message', message);
+      setMessages((prevMessages) => [...prevMessages, message]);
+      setInput('');
+    }
   };
 
   return (
-    <div>
-      <ul>
+    <div className="chat">
+      <div className="chat-messages">
         {messages.map((msg, index) => (
-          <li key={index}>{msg}</li>
+          <div key={index} className={`chat-message ${msg.sender}`}>
+            {msg.text}
+          </div>
         ))}
-      </ul>
-      <form onSubmit={handleSubmit}>
+      </div>
+      <div className="chat-input">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          autoComplete="off"
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button type="submit">Enviar</button>
-      </form>
+        <button onClick={handleSend}>Enviar</button>
+      </div>
     </div>
   );
-};
+}
 
 export default Chat;
